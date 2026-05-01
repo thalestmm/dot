@@ -1,3 +1,3 @@
 # Dot
 
-Simple `.dotfiles` manager for sync accross multiple work environments.
+Simple `dotfiles` manager for synchronization accross multiple work environments.
