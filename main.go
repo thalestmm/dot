@@ -37,7 +37,7 @@ func main() {
 			if !*includeHidden && entry.Name()[0] == '.' {
 				continue
 			}
-			fmt.Println(entry.Name())
+			fmt.Printf("> %s\n", entry.Name())
 		}
 	}
 }
