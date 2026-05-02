@@ -196,7 +196,7 @@ func traverse(path, dirName, homeDir string) error {
 		dstPath := filepath.Join(homeDir, dirName, child.Name())
 
 		if child.IsDir() {
-			if err := traverse(filepath.Join(path, child.Name()), filepath.Join(filepath.Base(path), dirName), homeDir); err != nil {
+			if err := traverse(filepath.Join(path, child.Name()), filepath.Join(dirName, child.Name()), homeDir); err != nil {
 				return err
 			}
 		} else {
