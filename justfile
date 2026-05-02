@@ -46,6 +46,8 @@ release version="patch": f b t
 
     set -euo pipefail
 
-
+    echo "Bumping version ({{ version }})"
+    echo -n "Current version: "
+    cat app.json | jq '.version'
 
     goreleaser -f config/goreleaser.yaml --snapshot --clean
