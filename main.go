@@ -177,5 +177,14 @@ func copyDir(src, dst string) error {
 // the children files to each mapped path.
 func traverse(dir string) error {
 	fmt.Printf("%straversing %s%s\n", colorBlue, dir, colorReset)
+	children, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	for _, child := range children {
+		if child.IsDir() {
+			traverse(filepath.Join(dir, child.Name()))
+		}
+	}
 	return nil
 }
