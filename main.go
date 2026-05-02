@@ -19,8 +19,8 @@ const (
 )
 
 func main() {
-	targetDir := flag.String("dir", ".", "target directory")
-	includeHidden := flag.Bool("hidden", false, "include hidden directories")
+	targetDir := flag.String("dir", ".", "relative path to target directory")
+	includeHidden := flag.Bool("hidden", false, "include hidden directories in target directory (nested hidden directories are always included)")
 	flag.Parse()
 
 	err := os.Chdir(*targetDir)
@@ -30,6 +30,7 @@ func main() {
 	}
 
 	wd, err := os.Getwd()
+	targetPath := filepath.Join(wd, *targetDir)
 
 	fmt.Printf("\nProcessing directory: %s%s%s\n\n", colorGreen, wd, colorReset)
 
@@ -58,8 +59,6 @@ func main() {
 		}
 	}
 
-	fmt.Println(dirs)
-
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Printf("%sOops! Failed to get home directory: %v%s\n", colorRed, err, colorReset)
@@ -76,14 +75,30 @@ func main() {
 
 	fmt.Printf("\nUpserted .dotfiles directory: %s%s%s\n", colorYellow, dotfilesDir, colorReset)
 
-	// Copy contents of current directory to .dotfiles dir
+	// Copy contents of target directory to .dotfiles dir
 	for _, entry := range dirs {
-		if err := copyDir(filepath.Join(*targetDir, entry.Name()), dotfilesDir); err != nil {
+		if err := copyDir(filepath.Join(targetPath, entry.Name()), dotfilesDir); err != nil {
+			fmt.Printf("%s", filepath.Join(*targetDir, entry.Name()))
 			fmt.Printf("%sOops! Failed to copy directory: %v%s\n", colorRed, err, colorReset)
 			os.Exit(1)
 		}
 	}
 
+	// Traverse each new directory and symlink to the desired path
+	dirs, err = os.ReadDir(dotfilesDir)
+	if err != nil {
+		fmt.Printf("%sOops! Failed to read .dotfiles directory: %v%s\n", colorRed, err, colorReset)
+		os.Exit(1)
+	}
+
+	fmt.Printf("\nContents of .dotfiles:\n\n")
+	for _, entry := range dirs {
+		if entry.IsDir() {
+			fmt.Printf("> %s%s%s\n", colorYellow, entry.Name(), colorReset)
+		}
+	}
+
+	// TODO: Remove, debug only
 	if err := exec.Command("open", dotfilesDir).Start(); err != nil {
 		fmt.Printf("%sOops! Failed to open directory: %v%s\n", colorRed, err, colorReset)
 		os.Exit(1)
@@ -109,33 +124,38 @@ func copyFile(src, dst string) error {
 	return nil
 }
 
+// copyDir copies the contents of a directory to another directory.
+// It takes a full src path and the base dst path.
 func copyDir(src, dst string) error {
 	entries, err := os.ReadDir(src)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Copying", src, "to", dst)
+	dirName := filepath.Base(src)
+	srcParentPath := filepath.Dir(src)
+	fmt.Printf("src: %s\n", src)
+	fmt.Printf("dst: %s\n", dst)
+	fmt.Printf("parent: %s\n", srcParentPath)
+	fmt.Printf("name: %s\n\n", dirName)
 
-	basePath := filepath.Join(dst, src)
-	if err := os.MkdirAll(basePath, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(dst, dirName), 0755); err != nil {
 		return err
 	}
 
 	for _, entry := range entries {
+		fmt.Printf("entry: %s\n", entry.Name())
 		if entry.IsDir() {
-			if err := os.MkdirAll(filepath.Join(basePath, entry.Name()), 0755); err != nil {
-				return err
-			}
-			if err := copyDir(filepath.Join(src, entry.Name()), filepath.Join(basePath, entry.Name())); err != nil {
+			if err := copyDir(filepath.Join(src, entry.Name()), filepath.Join(dst, dirName)); err != nil {
 				return err
 			}
 		} else {
-			if err := copyFile(filepath.Join(src, entry.Name()), filepath.Join(basePath, entry.Name())); err != nil {
+			if err := copyFile(filepath.Join(src, entry.Name()), filepath.Join(dst, dirName, entry.Name())); err != nil {
 				return err
 			}
 		}
 	}
 
+	fmt.Println("---")
 	return nil
 }

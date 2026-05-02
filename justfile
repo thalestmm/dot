@@ -3,6 +3,11 @@
 r:
     @go run .
 
+# [W]atch
+[group('dev')]
+w:
+    @air -c config/air.toml
+
 # Stage all changes and [c]ommit
 [group('dev')]
 c msg="chore: update": fmt
