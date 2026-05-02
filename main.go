@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -111,7 +112,9 @@ func main() {
 		// Skip git dir
 		if dir.Name() != ".git" {
 			fmt.Printf("Working on %s%s%s...\n", colorGreen, dir.Name(), colorReset)
-			traverse(filepath.Join(dotfilesDir, dir.Name()))
+			if err := traverse(filepath.Join(dotfilesDir, dir.Name()), "", homeDir); err != nil {
+				fmt.Printf("%sOops! Failed to traverse and symlink: %v%s", colorRed, err, colorReset)
+			}
 			fmt.Printf("Done!\n\n")
 		}
 	}
@@ -119,10 +122,10 @@ func main() {
 	fmt.Println()
 
 	// TODO: Remove, debug only
-	// if err := exec.Command("open", dotfilesDir).Start(); err != nil {
-	// 	fmt.Printf("%sOops! Failed to open directory: %v%s\n", colorRed, err, colorReset)
-	// 	os.Exit(1)
-	// }
+	if err := exec.Command("open", "~/.config").Start(); err != nil {
+		fmt.Printf("%sOops! Failed to open directory: %v%s\n", colorRed, err, colorReset)
+		os.Exit(1)
+	}
 }
 
 func copyFile(src, dst string) error {
@@ -175,15 +178,21 @@ func copyDir(src, dst string) error {
 
 // traverse walks recursively trough a dotfiles directory and symlink
 // the children files to each mapped path.
-func traverse(dir string) error {
-	fmt.Printf("%straversing %s%s\n", colorBlue, dir, colorReset)
-	children, err := os.ReadDir(dir)
+func traverse(path, dirName, homeDir string) error {
+	fmt.Printf("%straversing %s%s\n", colorBlue, path, colorReset)
+	children, err := os.ReadDir(path)
 	if err != nil {
 		return err
 	}
 	for _, child := range children {
 		if child.IsDir() {
-			traverse(filepath.Join(dir, child.Name()))
+			if err := traverse(filepath.Join(path, child.Name()), filepath.Base(path), homeDir); err != nil {
+				return err
+			}
+		} else {
+			if err := os.Symlink(filepath.Join(path, child.Name()), filepath.Join(homeDir, dirName, path)); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
