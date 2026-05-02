@@ -46,8 +46,33 @@ release version="patch": f b t
 
     set -euo pipefail
 
+    echo ""
     echo "Bumping version ({{ version }})"
-    echo -n "Current version: "
-    cat app.json | jq '.version'
+    echo ""
 
-    goreleaser -f config/goreleaser.yaml --snapshot --clean
+    current_version=$(jq -r '.version' app.json)
+    echo "Current version:  $current_version"
+
+    case "{{ version }}" in major|minor|patch)
+
+        major=$(echo "$current_version" | cut -d. -f1)
+        minor=$(echo "$current_version" | cut -d. -f2)
+        patch=$(echo "$current_version" | cut -d. -f3)
+
+        case "{{ version }}" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+        esac
+
+        new_version="$major.$minor.$patch"
+        echo "New version:      $new_version"
+    esac
+
+    # Update version in app.json
+    jq --arg v "$new_version" '.version = $v' app.json > app.json.tmp
+    mv app.json.tmp app.json
+
+
+
+    # goreleaser -f config/goreleaser.yaml --snapshot --clean
