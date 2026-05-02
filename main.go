@@ -1,3 +1,6 @@
+// Copyright 2026 @thalestmm. All rights reserved.
+//
+// MIT license available in LICENSE
 package main
 
 import (
@@ -6,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 )
 
@@ -98,10 +100,10 @@ func main() {
 	// Traverse each .dotfiles directory and symlink to the desired path
 
 	// TODO: Remove, debug only
-	if err := exec.Command("open", dotfilesDir).Start(); err != nil {
-		fmt.Printf("%sOops! Failed to open directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
-	}
+	// if err := exec.Command("open", dotfilesDir).Start(); err != nil {
+	// 	fmt.Printf("%sOops! Failed to open directory: %v%s\n", colorRed, err, colorReset)
+	// 	os.Exit(1)
+	// }
 }
 
 func copyFile(src, dst string) error {
