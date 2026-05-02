@@ -1,6 +1,6 @@
 // Copyright 2026 @thalestmm. All rights reserved.
 //
-// MIT license available in LICENSE
+// MIT license
 package main
 
 import (
