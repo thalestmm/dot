@@ -60,6 +60,8 @@ func main() {
 		}
 	}
 
+	fmt.Println()
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Printf("%sOops! Failed to get home directory: %v%s\n", colorRed, err, colorReset)
@@ -74,7 +76,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("\nUpserted .dotfiles directory: %s%s%s\n", colorYellow, dotfilesDir, colorReset)
+	fmt.Printf("Upserted .dotfiles directory: %s%s%s\n", colorYellow, dotfilesDir, colorReset)
 
 	// Copy contents of target directory to .dotfiles dir
 	for _, entry := range dirs {
@@ -109,6 +111,8 @@ func main() {
 			traverse(filepath.Join(dotfilesDir, dir.Name()))
 		}
 	}
+
+	fmt.Println()
 
 	// TODO: Remove, debug only
 	// if err := exec.Command("open", dotfilesDir).Start(); err != nil {
