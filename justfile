@@ -73,6 +73,9 @@ release version="patch": f b t
     jq --arg v "$new_version" '.version = $v' app.json > app.json.tmp
     mv app.json.tmp app.json
 
-
+    git add app.json
+    git commit -m "chore: update version in app.json to v$new_version"
+    git tag -a v$new_version -m "Release v$new_version"
+    git push origin v$new_version
 
     # goreleaser -f config/goreleaser.yaml --snapshot --clean
