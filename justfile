@@ -30,3 +30,8 @@ p msg="chore: update":
 f:
     @go fmt ./...
     @go vet ./...
+
+# Bump app version in app.json, create new tag and publish binaries with goreleaser
+[group('ci')]
+release:
+    @goreleaser -f config/goreleaser.yaml --snapshot --clean
