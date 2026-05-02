@@ -19,6 +19,12 @@ c msg="chore: update": f
     @git add .
     @git commit -m "{{ msg }}"
 
+# Stage all changes, commit and [p]ush
+[group('dev')]
+p msg="chore: update":
+    @just c "{{ msg }}"
+    @git push
+
 # [F]ormat code
 [group('ci')]
 f:
