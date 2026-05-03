@@ -1,6 +1,6 @@
 # [R]un
 [group('dev')]
-r args="-dir example":
+r args="-git https://github.com/thalestmm/dots.git -dry-run":
     @go run . {{ args }}
 
 # [B]uild

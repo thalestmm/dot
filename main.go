@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,10 +23,24 @@ const (
 )
 
 func main() {
+	gitRemoteURLInput := flag.String("git", "", "URL for the git remote repository")
 	targetDir := flag.String("dir", ".", "relative path to target directory")
 	includeHidden := flag.Bool("hidden", false, "include hidden directories in target directory (nested hidden directories are always included)")
+	isDryRun := flag.Bool("dry-run", false, "don't apply symlinks")
 	flag.Parse()
 
+	var gitRemoteURL *url.URL
+	if *gitRemoteURLInput != "" {
+		fmt.Println("Parsing git url")
+		gitRemoteURL, err := url.Parse(*gitRemoteURLInput)
+		if err != nil {
+			fmt.Printf("%sOops! Failed to parse the git URL: %v%s", colorRed, err, colorReset)
+		}
+
+		fmt.Println(gitRemoteURL)
+	}
+
+	fmt.Println(gitRemoteURL)
 	err := os.Chdir(*targetDir)
 	if err != nil {
 		fmt.Printf("%sOops! Failed to change directory: %v%s\n", colorRed, err, colorReset)
@@ -112,9 +127,11 @@ func main() {
 		// Skip git dir
 		if dir.Name() != ".git" {
 			fmt.Printf("Working on %s%s%s... ", colorGreen, dir.Name(), colorReset)
-			if err := traverse(filepath.Join(dotfilesDir, dir.Name()), "", homeDir); err != nil {
-				fmt.Printf("%sOops! Failed to traverse and symlink: %v%s\n", colorRed, err, colorReset)
-				os.Exit(1)
+			if !*isDryRun {
+				if err := traverse(filepath.Join(dotfilesDir, dir.Name()), "", homeDir); err != nil {
+					fmt.Printf("%sOops! Failed to traverse and symlink: %v%s\n", colorRed, err, colorReset)
+					os.Exit(1)
+				}
 			}
 			fmt.Printf("Done!\n\n")
 		}
