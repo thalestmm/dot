@@ -44,6 +44,22 @@ func main() {
 			fmt.Printf("%sOops! git is not installed.%s\n", colorRed, colorReset)
 			os.Exit(1)
 		}
+
+		// Create a tmp dir to store the cloned repo
+		tmpDir, err := os.MkdirTemp("", "dots")
+		if err != nil {
+			fmt.Printf("%sOops! Failed to create the temporary dir: %v%s\n", colorRed, err, colorReset)
+			os.Exit(1)
+		}
+		defer os.RemoveAll(tmpDir)
+
+		fmt.Println(tmpDir)
+
+		if err := exec.Command("git", "clone", gitRemoteURL.String(), tmpDir).Start(); err != nil {
+			fmt.Printf("%sOops! Failed to clone the repo: %v%s\n", colorRed, err, colorReset)
+			os.Exit(1)
+		}
+
 	}
 
 	fmt.Println(gitRemoteURL)
