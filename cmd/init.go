@@ -4,9 +4,12 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,10 +20,10 @@ type Config struct {
 	DotfilesDir string `json:"dotfiles_dir"`
 }
 
-func defaultConfig() Config {
+func defaultConfig(home string) Config {
 	return Config{
 		RemoteURL:   "",
-		DotfilesDir: "~/.dotfiles",
+		DotfilesDir: filepath.Join(home, ".dotfiles"),
 	}
 }
 
@@ -36,8 +39,8 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 	// Check if the configuration file exists
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath != "" {
-		fmt.Println("You are all set, your config file is at", cfgPath)
-		fmt.Println("To edit your config file, run \033[dots config`")
+		fmt.Printf("You are all set, your config file is at %s%s%s\n", colorYellow, cfgPath, colorReset)
+		fmt.Printf("To edit your config file, run %sdots config%s\n", colorBlue, colorReset)
 		return
 	}
 
@@ -45,11 +48,15 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Println("Error getting home directory:", err)
+		fmt.Printf("%sOops! Error getting home directory: %v%s\n", colorRed, err, colorReset)
 		return
 	}
 	cfgPath = filepath.Join(home, ".config", "dots.json")
 
+	// Initialize new default configuration
+	cfg := defaultConfig(home)
+
+	// Read remote URL from user input
 	var remoteURL string
 	fmt.Printf("Enter your remote git URL: %s", colorGreen)
 	_, err = fmt.Scanln(&remoteURL)
@@ -59,7 +66,32 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Println(remoteURL)
+	// Parse remote URL and set config values
+	parsedURL, err := url.Parse(remoteURL)
+	if err != nil {
+		fmt.Printf("%sOops! Error parsing remote URL: %v%s\n", colorRed, err, colorReset)
+		return
+	}
+
+	cfg.RemoteURL = parsedURL.String()
+
+	// Prompt for the dotfiles directory
+	var dotfilesDirInput string
+	fmt.Printf("Enter the local dotfiles directory (default: %s): %s", cfg.DotfilesDir, colorGreen)
+
+	reader := bufio.NewReader(os.Stdin)
+	dotfilesDirInput, err = reader.ReadString('\n')
+	fmt.Printf("%s\n", colorReset)
+	if err != nil {
+		fmt.Printf("%sOops! Error reading dotfiles directory: %v%s\n", colorRed, err, colorReset)
+		return
+	}
+	dotfilesDirInput = strings.TrimSpace(dotfilesDirInput)
+	if dotfilesDirInput != "" {
+		cfg.DotfilesDir = dotfilesDirInput
+	}
+
+	fmt.Println(cfg)
 
 }
 
