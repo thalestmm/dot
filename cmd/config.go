@@ -5,8 +5,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // configCmd represents the config command
@@ -15,7 +18,21 @@ var configCmd = &cobra.Command{
 	Short: "Update the dots configuration",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("config called")
+		cfgPath := viper.ConfigFileUsed()
+
+		if cfgPath == "" {
+			fmt.Printf("Oops! No config file found. Run %sdots init%s to create one.\n", colorGreen, colorReset)
+			return
+		}
+
+		vimCmd := exec.Command("vim", cfgPath)
+		vimCmd.Stdin = os.Stdin
+		vimCmd.Stdout = os.Stdout
+		vimCmd.Stderr = os.Stderr
+
+		if err := vimCmd.Run(); err != nil {
+			fmt.Printf("%sOops! An error occurred while opening the config file: %v%s\n", colorRed, err, colorReset)
+		}
 	},
 }
 
