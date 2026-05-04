@@ -83,3 +83,6 @@ release version="patch": f b t
     git push origin main
 
     # goreleaser -f config/goreleaser.yaml --snapshot --clean
+
+i:
+    ./scripts/install.sh
