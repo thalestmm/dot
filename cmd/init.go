@@ -61,7 +61,7 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 
 	// Read remote URL from user input
 	var remoteURL string
-	fmt.Printf("Enter your remote git URL: %s", colorGreen)
+	fmt.Printf("Enter your remote dotfiles git URL: %s", colorGreen)
 
 	remoteURL, err = reader.ReadString('\n')
 	remoteURL = strings.TrimSpace(remoteURL)

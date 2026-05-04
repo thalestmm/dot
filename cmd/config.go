@@ -21,8 +21,7 @@ var configCmd = &cobra.Command{
 		cfgPath := viper.ConfigFileUsed()
 
 		if cfgPath == "" {
-			fmt.Printf("Oops! No config file found. Run %sdots init%s to create one.\n", colorGreen, colorReset)
-			return
+			initCmd.Run(cmd, args)
 		}
 
 		vimCmd := exec.Command("vim", cfgPath)
