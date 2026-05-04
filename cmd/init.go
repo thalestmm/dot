@@ -39,6 +39,7 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 	// Check if the configuration file exists
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath != "" {
+		// TODO: Check if the config file is valid (all necessary fields are set)
 		fmt.Printf("You are all set, your config file is at %s%s%s\n", colorYellow, cfgPath, colorReset)
 		fmt.Printf("To edit your config file, run %sdots config%s\n", colorBlue, colorReset)
 		return
@@ -59,7 +60,10 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 	// Read remote URL from user input
 	var remoteURL string
 	fmt.Printf("Enter your remote git URL: %s", colorGreen)
-	_, err = fmt.Scanln(&remoteURL)
+
+	reader := bufio.NewReader(os.Stdin)
+	remoteURL, err = reader.ReadString('\n')
+	remoteURL = strings.TrimSpace(remoteURL)
 	fmt.Printf("%s\n", colorReset)
 	if err != nil {
 		fmt.Printf("%sOops! Error reading remote URL: %v%s\n", colorRed, err, colorReset)
@@ -79,7 +83,6 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 	var dotfilesDirInput string
 	fmt.Printf("Enter the local dotfiles directory (default: %s): %s", cfg.DotfilesDir, colorGreen)
 
-	reader := bufio.NewReader(os.Stdin)
 	dotfilesDirInput, err = reader.ReadString('\n')
 	fmt.Printf("%s\n", colorReset)
 	if err != nil {
