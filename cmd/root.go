@@ -39,6 +39,7 @@ var rootCmd = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("\nWelcome to %s%sdots%s!\n\n", colorRed, fontBold, colorReset)
+
 		if viper.ConfigFileUsed() == "" {
 			fmt.Printf("Run %s%sdots init%s to get started.\n", colorBlue, fontBold, colorReset)
 			return
