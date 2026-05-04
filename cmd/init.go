@@ -56,12 +56,12 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 
 	// Initialize new default configuration
 	cfg := defaultConfig(home)
+	reader := bufio.NewReader(os.Stdin)
 
 	// Read remote URL from user input
 	var remoteURL string
 	fmt.Printf("Enter your remote git URL: %s", colorGreen)
 
-	reader := bufio.NewReader(os.Stdin)
 	remoteURL, err = reader.ReadString('\n')
 	remoteURL = strings.TrimSpace(remoteURL)
 	fmt.Printf("%s\n", colorReset)
