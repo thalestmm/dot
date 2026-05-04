@@ -109,7 +109,7 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Println(cfg)
+	fmt.Printf("All set! Run %sdots sync%s to sync your dotfiles.\n\n", colorBlue, colorReset)
 
 }
 

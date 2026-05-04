@@ -14,14 +14,6 @@ import (
 	"path/filepath"
 )
 
-const (
-	colorGreen  = "\033[32m"
-	colorYellow = "\033[33m"
-	colorBlue   = "\033[34m"
-	colorRed    = "\033[31m"
-	colorReset  = "\033[0m"
-)
-
 func old() {
 	gitRemoteURL := flag.String("git", "", "URL for the git remote repository")
 	targetDir := flag.String("dir", ".", "relative path to target directory")

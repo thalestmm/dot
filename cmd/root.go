@@ -35,7 +35,7 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "dots",
-	Short: "\033[31m\033[1mdots\033[0m: A simple CLI tool for managing your dotfiles.",
+	Short: fmt.Sprintf("\n%s%sdots%s: A simple CLI tool for managing your dotfiles.", colorRed, fontBold, colorReset),
 	Long:  "",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
