@@ -34,14 +34,14 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a new dots configuration",
 	Long:  "",
-	Run:   initializeConfiguration,
+	Run:   setupConfigFile,
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func initializeConfiguration(cmd *cobra.Command, args []string) {
+func setupConfigFile(cmd *cobra.Command, args []string) {
 	// Check if the configuration file exists
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath != "" {
