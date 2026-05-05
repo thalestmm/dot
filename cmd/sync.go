@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,66 +30,51 @@ func init() {
 
 func synchronize(cmd *cobra.Command, args []string) {
 	gitRemoteURL := viper.GetString("remote_url")
-	var targetDir *string
 	includeHidden := flag.Bool("hidden", false, "include hidden directories in target directory (nested hidden directories are always included)")
 	isDryRun := flag.Bool("dry-run", false, "don't apply symlinks")
 	flag.Parse()
 
-	if gitRemoteURL != "" {
-		fmt.Print("\nParsing git URL...\n")
-		gitRemoteURL, err := url.Parse(gitRemoteURL)
-		if err != nil {
-			fmt.Printf("%sOops! Failed to parse the git URL: %v%s\n", colorRed, err, colorReset)
-			os.Exit(1)
-		}
-		fmt.Printf("\nChecked! %s%s%s\n", colorYellow, gitRemoteURL, colorReset)
-
-		// Check if git is installed
-		if err := exec.Command("git", "-v").Start(); err != nil {
-			fmt.Printf("%sOops! git is not installed.%s\n", colorRed, colorReset)
-			os.Exit(1)
-		}
-
-		// Create a tmp dir to store the cloned repo
-		tmpDir, err := os.MkdirTemp("", "dots_")
-		if err != nil {
-			fmt.Printf("%sOops! Failed to create the temporary dir: %v%s\n", colorRed, err, colorReset)
-			os.Exit(1)
-		}
-		defer os.RemoveAll(tmpDir)
-
-		fmt.Printf("\nCloning into %s.../%s%s (tmp)\n", colorGreen, filepath.Base(tmpDir), colorReset)
-
-		if err := exec.Command("git", "clone", gitRemoteURL.String(), tmpDir).Run(); err != nil {
-			fmt.Printf("%sOops! Failed to clone the repo: %v%s\n", colorRed, err, colorReset)
-			os.Exit(1)
-		}
-
-		// Override target dir to use the tmp dir with the cloned repo
-		targetDir = &tmpDir
+	// Check if git is installed
+	if err := exec.Command("git", "-v").Start(); err != nil {
+		fmt.Printf("%sOops! git is not installed.%s\n", colorRed, colorReset)
+		return
 	}
 
-	err := os.Chdir(*targetDir)
+	// Create a tmp dir to store the cloned repo
+	tmpDir, err := os.MkdirTemp("", "dots_")
 	if err != nil {
+		fmt.Printf("%sOops! Failed to create the temporary dir: %v%s\n", colorRed, err, colorReset)
+		return
+	}
+	defer os.RemoveAll(tmpDir)
+
+	fmt.Printf("\nCloning into %s.../%s%s (tmp)\n", colorGreen, filepath.Base(tmpDir), colorReset)
+
+	if err := exec.Command("git", "clone", gitRemoteURL, tmpDir).Run(); err != nil {
+		fmt.Printf("%sOops! Failed to clone the repo: %v%s\n", colorRed, err, colorReset)
+		return
+	}
+
+	// Override target dir to use the tmp dir with the cloned repo
+
+	if err = os.Chdir(tmpDir); err != nil {
 		fmt.Printf("%sOops! Failed to change directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
+		return
 	}
 
 	wd, err := os.Getwd()
-
-	exec.Command("open", wd).Start()
 
 	fmt.Printf("\nProcessing directory: %s%s%s\n\n", colorBlue, wd, colorReset)
 
 	if err != nil {
 		fmt.Printf("%sOops! Failed to get current directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
+		return
 	}
 
 	contents, err := os.ReadDir(wd)
 	if err != nil {
 		fmt.Printf("%sOops! Failed to read directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
+		return
 	}
 
 	fmt.Print("Directories found:\n\n")
@@ -112,7 +96,7 @@ func synchronize(cmd *cobra.Command, args []string) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Printf("%sOops! Failed to get home directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
+		return
 	}
 
 	// See if the .dotfiles dir already exists
@@ -120,7 +104,7 @@ func synchronize(cmd *cobra.Command, args []string) {
 
 	if err := os.MkdirAll(dotfilesDir, 0755); err != nil {
 		fmt.Printf("%sOops! Failed to create .dotfiles directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
+		return
 	}
 
 	fmt.Printf("Upserted .dotfiles directory: %s%s%s\n", colorYellow, dotfilesDir, colorReset)
@@ -129,14 +113,14 @@ func synchronize(cmd *cobra.Command, args []string) {
 	for _, entry := range dirs {
 		if err := copyDir(filepath.Join(wd, entry.Name()), dotfilesDir); err != nil {
 			fmt.Printf("%sOops! Failed to copy directory: %v%s\n", colorRed, err, colorReset)
-			os.Exit(1)
+			return
 		}
 	}
 
 	dirs, err = os.ReadDir(dotfilesDir)
 	if err != nil {
 		fmt.Printf("%sOops! Failed to read .dotfiles directory: %v%s\n", colorRed, err, colorReset)
-		os.Exit(1)
+		return
 	}
 
 	fmt.Printf("\nContents of .dotfiles:\n\n")
@@ -161,7 +145,7 @@ func synchronize(cmd *cobra.Command, args []string) {
 			if !*isDryRun {
 				if err := traverse(filepath.Join(dotfilesDir, dir.Name()), "", homeDir); err != nil {
 					fmt.Printf("%sOops! Failed to traverse and symlink: %v%s\n", colorRed, err, colorReset)
-					os.Exit(1)
+					return
 				}
 			}
 			fmt.Printf("Done!\n\n")
@@ -169,8 +153,6 @@ func synchronize(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println()
-
-	os.Exit(0)
 }
 
 func copyFile(src, dst string) error {
