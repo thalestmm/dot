@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -90,7 +91,15 @@ func initializeConfiguration(cmd *cobra.Command, args []string) {
 		parsedURL.Path += ".git"
 	}
 
-	// TODO: Add a quick health check
+	resp, err := http.Get(parsedURL.String())
+
+	if err != nil || resp.StatusCode != http.StatusOK {
+		fmt.Printf("%sOops! Error checking remote URL: %v%s\n", colorRed, err, colorReset)
+		resp.Body.Close()
+		return
+	}
+
+	defer resp.Body.Close()
 
 	cfg.RemoteURL = parsedURL.String()
 
