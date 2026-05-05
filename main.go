@@ -21,8 +21,30 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/thalestmm/dots/cmd"
+import (
+	_ "embed"
+	"encoding/json"
+	"fmt"
+	"os"
+
+	"github.com/thalestmm/dots/cmd"
+)
+
+//go:embed app.json
+var appInfoFile []byte
+
+type AppInfo struct {
+	Version string `json:"version"`
+}
 
 func main() {
+	var appInfo AppInfo
+
+	// Parse app.json
+	if err := json.Unmarshal(appInfoFile, &appInfo); err != nil {
+		fmt.Printf("Oops! Error parsing app.json: %v\n", err)
+		os.Exit(1)
+	}
+
 	cmd.Execute()
 }
