@@ -43,3 +43,7 @@ func printError(msg string, err error) {
 func formatCmd(cmd string) string {
 	return fmt.Sprintf("%s%s%s%s", colorBlue, fontBold, cmd, colorReset)
 }
+
+func formatPath(path string) string {
+	return fmt.Sprintf("%s%s%s", colorYellow, path, colorReset)
+}

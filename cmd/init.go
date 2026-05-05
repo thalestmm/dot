@@ -47,12 +47,12 @@ func setupConfigFile(cmd *cobra.Command, args []string) {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath != "" {
 		// TODO: Check if the config file is valid (all necessary fields are set)
-		fmt.Printf("You are all set, your config file is at %s%s%s\n", colorYellow, cfgPath, colorReset)
-		fmt.Printf("To edit your config file, run %sdots config%s\n", colorBlue, colorReset)
+		fmt.Printf("\nYou are all set, your config file is at %s\n\n", formatPath(cfgPath))
+		fmt.Printf("To edit your config file, run %s\n", formatCmd("dots config"))
 		return
 	}
 
-	fmt.Printf("No config file found, creating at %s$HOME/.config/dots.json%s\n\n", colorYellow, colorReset)
+	fmt.Printf("\nNo config file found, creating at %s\n\n", formatPath("$HOME/.config/dots.json"))
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -119,17 +119,19 @@ func setupConfigFile(cmd *cobra.Command, args []string) {
 		cfg.DotfilesDir = dotfilesDirInput
 	}
 
+	// Marshal the config struct into json
 	jsonCfg, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		fmt.Printf("%sOops! Error marshaling config: %v%s\n", colorRed, err, colorReset)
 		return
 	}
 
+	// Create the config file
 	err = os.WriteFile(cfgPath, jsonCfg, 0644)
 	if err != nil {
 		fmt.Printf("%sOops! Error writing config: %v%s\n", colorRed, err, colorReset)
 		return
 	}
 
-	fmt.Printf("All set! Run %sdots sync%s to sync your dotfiles.\n\n", colorBlue, colorReset)
+	fmt.Printf("All set! Run %s to sync your dotfiles.\n\n", formatCmd("dots sync"))
 }
