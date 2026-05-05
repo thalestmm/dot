@@ -1,2 +1,3 @@
 - Include `sync` command: pulls, commits local changes (with machine identifier), pushes to remote (`dots sync`)
 - Use the relative `$HOME/...` path in the dots config file for support accross different machines
+- Add support for private repos using the github CLI
