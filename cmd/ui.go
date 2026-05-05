@@ -39,3 +39,7 @@ const (
 func printError(msg string, err error) {
 	fmt.Printf("%sOops! %s: %v%s\n", colorRed, msg, err, colorReset)
 }
+
+func formatCmd(cmd string) string {
+	return fmt.Sprintf("%s%s%s%s", colorBlue, fontBold, cmd, colorReset)
+}
