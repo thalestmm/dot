@@ -34,6 +34,7 @@ var versionCmd = &cobra.Command{
 	Short: "Get the version of the application and check for updates",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		// TODO: Add update checks here, improve output format
 		fmt.Println(viper.GetString("version"))
 	},
 }
