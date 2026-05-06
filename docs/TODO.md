@@ -1,5 +1,6 @@
 - Include `sync` command: pulls, commits local changes (with machine identifier), pushes to remote (`dots sync`)
-- Use the relative `$HOME/...` path in the dots config file for support accross different machines
+- Use the relative `$HOME/...` path in the dots config file for support accross different machines.
+  Parse it internally (`$HOME -> getHomeDir`)
 - Add support for private repos using the github CLI
 - Add specific child commands for `sync`: `pull` and `push` (base cmd runs all)
 - Create `add` command, where we setup a new dotfiles dir containing the path (dir or file) to a new app to be tracked.
