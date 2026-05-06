@@ -79,5 +79,7 @@ release version="patch": f b t
 
     goreleaser -f config/goreleaser.yaml
 
+# Run the [i]nstal script
+[group('dev')]
 i:
     ./scripts/install.sh
