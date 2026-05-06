@@ -4,6 +4,12 @@ Pure `go` implementation of a simple `dotfiles` manager for synchronization accr
 
 Available for Linux and MacOS systems.
 
+## Installation
+
+```bash
+go install github.com/thalestm/dots
+```
+
 Example setup for a target directory:
 
 ```bash
