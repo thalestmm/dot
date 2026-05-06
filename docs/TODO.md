@@ -6,5 +6,3 @@
   This could be a part of the `init` command, asking if the user already has a configuration, etc
 - In the help command, include instructions as to how the dotfiles dir should be structured
 - Implement `update` command, which fetches the latest `dots` version and updates the local installation
-- Add `version` command, which prints the current `dots` version. Add `-v` flag to print the version from the
-  root command
