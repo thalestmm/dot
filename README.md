@@ -7,8 +7,10 @@ Available for Linux and MacOS systems.
 ## Installation
 
 ```bash
-go install github.com/thalestm/dots
+go install github.com/thalestmm/dots@latest
 ```
+
+Run `dots`!
 
 Example setup for a target directory:
 
